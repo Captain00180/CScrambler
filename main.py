@@ -1,9 +1,10 @@
+# Example file demonstrating the use of the Scrambler class
 import argparse
 from pycparser import parse_file, c_generator
 from scrambler import Scrambler
 
 if __name__ == '__main__':
-
+    # Parse arguments
     parser = argparse.ArgumentParser(
         prog='CScrambler',
         description='Simple C source code obfuscator.'
@@ -29,19 +30,19 @@ if __name__ == '__main__':
         integers = True
         whitespaces = True
 
+    # Parse the input source code into an AST representation
     ast = parse_file(filename)
-    ast.show(offset=2, attrnames=True)
 
+    # Begin obfuscation
     scrambler = Scrambler()
     scrambler.set_options(identifiers, strings, integers, whitespaces)
     scrambler.obfuscate(node=ast)
 
+    # Generate obfuscated source code from modified AST
     gen = c_generator.CGenerator()
     output = gen.visit(ast)
 
+    # Remove whitespaces from the generated output code
     if whitespaces:
         output = scrambler.remove_whitespace(output)
-    # output = output.replace('\n', '').replace('\r', '')
-    # output = ' '.join(output.split())
     print(output)
-        

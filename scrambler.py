@@ -1,5 +1,11 @@
+##############################################
+#    Simple C source code obfuscator class   #
+#                                            #
+#        Defines the class and methods       #
+#           of the Obfuscator class          #
+#           Author: Filip Januska            #
+##############################################
 from random import shuffle, randint
-
 from pycparser import c_ast
 
 
@@ -14,13 +20,14 @@ class Scrambler:
         self.integers = True
         self.whitespaces = True
 
+    # Set the methods of obfuscation to be applied
     def set_options(self, identifiers, strings, integers, whitespaces):
         self.identifiers = identifiers
         self.strings = strings
         self.integers = integers
         self.whitespaces = whitespaces
 
-
+    # Recursively apply obfuscation methods
     def obfuscate(self, node):
         if isinstance(node, (c_ast.Decl, c_ast.ID)) and self.identifiers:
             node.name = self.scramble_name(node.name, node.coord.column, node.coord.line)
@@ -36,8 +43,8 @@ class Scrambler:
         for child in node:
             self.obfuscate(child)
 
+    # Obfuscates identifiers
     def scramble_name(self, name, x, y):
-        # Obfuscates identifiers
         if name == 'main':
             return name
         if name in self.id_table:
@@ -51,6 +58,7 @@ class Scrambler:
         self.id_table[name] = new_name
         return new_name
 
+    # Obfuscates string literals
     def scramble_string(self, string):
         # Transforms the string to a sequence of escaped hex bytes
         res = ''
@@ -61,6 +69,7 @@ class Scrambler:
             res += r'\x' + f'{hex(ord(char))[2:]}'
         return res
 
+    # Obfuscates integer literals
     def scramble_int(self, num):
         def xor_obfuscate(x, iterations):
             if iterations <= 0:
@@ -74,6 +83,7 @@ class Scrambler:
         num_list = xor_obfuscate(num, 10)[:-1]
         return '(' + '^'.join([oct(x).replace("o", "") for x in num_list]) + ')'
 
+    # Removes optional whitespaces
     def remove_whitespace(self, input):
         input = input.replace('\n', '').replace('\r', '')
         return ' '.join(input.split())
