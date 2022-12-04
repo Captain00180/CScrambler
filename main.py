@@ -23,7 +23,7 @@ if __name__ == '__main__':
     integers = args.n
     whitespaces = args.w
 
-    if not (identifiers and strings and integers and whitespaces):
+    if not (identifiers or strings or integers or whitespaces):
         identifiers = True
         strings = True
         integers = True
@@ -33,7 +33,8 @@ if __name__ == '__main__':
     ast.show(offset=2, attrnames=True)
 
     scrambler = Scrambler()
-    scrambler.obfuscate(node=ast, identifiers=identifiers, strings=strings, integers=integers)
+    scrambler.set_options(identifiers, strings, integers, whitespaces)
+    scrambler.obfuscate(node=ast)
 
     gen = c_generator.CGenerator()
     output = gen.visit(ast)

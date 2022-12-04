@@ -9,17 +9,28 @@ class Scrambler:
         # key: old name
         # value: new name
         self.id_table = {}
+        self.identifiers = True
+        self.strings = True
+        self.integers = True
+        self.whitespaces = True
 
-    def obfuscate(self, node, identifiers=True, strings=True, integers=True):
-        if isinstance(node, (c_ast.Decl, c_ast.ID)) and identifiers:
+    def set_options(self, identifiers, strings, integers, whitespaces):
+        self.identifiers = identifiers
+        self.strings = strings
+        self.integers = integers
+        self.whitespaces = whitespaces
+
+
+    def obfuscate(self, node):
+        if isinstance(node, (c_ast.Decl, c_ast.ID)) and self.identifiers:
             node.name = self.scramble_name(node.name, node.coord.column, node.coord.line)
-        elif isinstance(node, c_ast.TypeDecl) and identifiers:
+        elif isinstance(node, c_ast.TypeDecl) and self.identifiers:
             node.declname = self.scramble_name(node.declname, node.coord.column, node.coord.line)
 
         elif isinstance(node, c_ast.Constant):
-            if node.type == 'string' and strings:
+            if node.type == 'string' and self.strings:
                 node.value = self.scramble_string(node.value)
-            if node.type == 'int' and integers:
+            if node.type == 'int' and self.integers:
                 node.value = self.scramble_int(node.value)
 
         for child in node:
