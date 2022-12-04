@@ -10,23 +10,23 @@ class Scrambler:
         # value: new name
         self.id_table = {}
 
-    def traverse(self, node):
-        if isinstance(node, (c_ast.Decl, c_ast.ID)):
+    def obfuscate(self, node, identifiers=True, strings=True, integers=True):
+        if isinstance(node, (c_ast.Decl, c_ast.ID)) and identifiers:
             node.name = self.scramble_name(node.name, node.coord.column, node.coord.line)
-        elif isinstance(node, c_ast.TypeDecl):
-            # Variable declaration
+        elif isinstance(node, c_ast.TypeDecl) and identifiers:
             node.declname = self.scramble_name(node.declname, node.coord.column, node.coord.line)
 
         elif isinstance(node, c_ast.Constant):
-            if node.type == 'string':
+            if node.type == 'string' and strings:
                 node.value = self.scramble_string(node.value)
-            if node.type == 'int':
+            if node.type == 'int' and integers:
                 node.value = self.scramble_int(node.value)
 
         for child in node:
-            self.traverse(child)
+            self.obfuscate(child)
 
     def scramble_name(self, name, x, y):
+        # Obfuscates identifiers
         if name == 'main':
             return name
         if name in self.id_table:
@@ -51,7 +51,6 @@ class Scrambler:
         return res
 
     def scramble_int(self, num):
-
         def xor_obfuscate(x, iterations):
             if iterations <= 0:
                 return x, 0
@@ -63,3 +62,7 @@ class Scrambler:
         num = int(num)
         num_list = xor_obfuscate(num, 10)[:-1]
         return '(' + '^'.join([oct(x).replace("o", "") for x in num_list]) + ')'
+
+    def remove_whitespace(self, input):
+        input = input.replace('\n', '').replace('\r', '')
+        return ' '.join(input.split())

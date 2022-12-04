@@ -10,19 +10,37 @@ if __name__ == '__main__':
     )
 
     parser.add_argument('filename')
+    parser.add_argument('-i', action='store_true', help='Obfuscate function and variable names', required=False)
+    parser.add_argument('-s', action='store_true', help='Obfuscate string literals', required=False)
+    parser.add_argument('-n', action='store_true', help='Obfuscate integer literals', required=False)
+    parser.add_argument('-w', action='store_true', help='Remove optional whitespaces', required=False)
 
     args = parser.parse_args()
-    print(args)
 
-    ast = parse_file('pycparser-master/examples/c_files/test.c')
+    filename = args.filename
+    identifiers = args.i
+    strings = args.s
+    integers = args.n
+    whitespaces = args.w
+
+    if not (identifiers and strings and integers and whitespaces):
+        identifiers = True
+        strings = True
+        integers = True
+        whitespaces = True
+
+    ast = parse_file(filename)
     ast.show(offset=2, attrnames=True)
 
     scrambler = Scrambler()
-    scrambler.traverse(node=ast)
+    scrambler.obfuscate(node=ast, identifiers=identifiers, strings=strings, integers=integers)
 
     gen = c_generator.CGenerator()
     output = gen.visit(ast)
-    output = output.replace('\n', '').replace('\r', '')
-    output = ' '.join(output.split())
+
+    if whitespaces:
+        output = scrambler.remove_whitespace(output)
+    # output = output.replace('\n', '').replace('\r', '')
+    # output = ' '.join(output.split())
     print(output)
         
