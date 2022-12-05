@@ -2,6 +2,8 @@
 # Obfuscator for C Source code
 ### Author: Filip Januška
 
+**Full repo link: https://github.com/Captain00180/CScrambler**
+
 This project implements a python class **Scrambler**, which obfuscates source code in C language.
 
 The class provides three simple methods of obfuscation: Obfuscating identifiers, string and integer literals and whitespace removal. 
